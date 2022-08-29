@@ -1,0 +1,34 @@
+<div id="<%= dom_id pet %>">
+  <p>
+    <strong>Nombre:</strong>
+    <%= pet.name %>
+  </p>
+
+  <p>
+    <strong>Raza:</strong>
+    <%= pet.race %>
+  </p>
+
+  <p>
+    <strong>Nacimiento:</strong>
+    <%= pet.birth %>
+  </p>
+
+  <p>
+    <strong>Dueño mascota:</strong>
+    <%= pet.owner_name %> <!--Remite al método owner_name de model/pets.rb-->
+  </p>
+
+  <p>
+    <strong>Historial:</strong>
+    <%= pet.history_count %> <!--Remite al método history_count de model/pets.rb-->
+  </p>
+
+  <p>
+    <strong>Diagnóstico:</strong>
+    <%= pet.pet_histories.each do |pet_history| %> <!--Remite al diagnóstico, se hace un each para que vaya aumentando el número de diagnósticos-->
+      <%= pet_history.diagnosis %>
+    <% end %>
+  </p>
+
+</div>

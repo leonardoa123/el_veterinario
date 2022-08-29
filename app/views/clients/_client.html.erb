@@ -1,0 +1,23 @@
+<div id="<%= dom_id client %>">
+  <p>
+    <strong>Nombre:</strong>
+    <%= client.name %>
+  </p>
+
+  <p>
+    <strong>Teléfono:</strong>
+    <%= client.phone %>
+  </p>
+
+  <p>
+    <strong>Email:</strong>
+    <%= client.email %>
+  </p>
+
+  <p>
+    <strong>Registro de mascota</strong>
+    <%= client.registered_pets %>
+  </p>
+  <!--Esto se relaciona con el modelo client.rb, para poder registrar una mascota, contabilizada en la vista de los clientes registrados-->
+
+</div>

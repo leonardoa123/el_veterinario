@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @pet_history %>
+
+<div>
+  <%= link_to "Edit this pet history", edit_pet_history_path(@pet_history) %> |
+  <%= link_to "Back to pet histories", pet_histories_path %>
+
+  <%= button_to "Destroy this pet history", @pet_history, method: :delete %>
+</div>

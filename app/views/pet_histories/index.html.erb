@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Historial</h1>
+
+<div id="pet_histories">
+  <% @pet_histories.each do |pet_history| %>
+    <%= render pet_history %>
+    <p>
+      <%= link_to "Show this pet history", pet_history %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New pet history", new_pet_history_path %>

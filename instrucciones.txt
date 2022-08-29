@@ -1,0 +1,223 @@
+Requerimientos
+
+Parte 1:
+
+
+● Crear la relación entre los modelos(el modelo Pet y PetHistory que vienen en el
+repositorio). Si no existe una FK se debe crear. (0.5 Puntos)
+
+rails new Veterinaria
+cd Veterinaria
+rails g scaffold Client name:string phone:string email:string
+rails g scaffold Pet name:string race:string birth:date
+rails g scaffold Pet_History weight:float height:float diagnosis:string pet:references
+
+
+# PARA INCLUIR LA FK DE PET A CLIENT:
+
+rails g migration AddClientRefToPet client:references
+rails generate migration AddClientRefToPet client_id:integer
+#Esto generará una  ueva migración.
+
+_____________________________________
+
+#REVISAR LAS RUTAS en config/routes.rb, 
+Incluir una página como index:
+
+root 'clients#index'
+
+#Si fuera necesario hacer una ruta anidada. Podría ser por ejemplo,
+
+resources :clients do
+    resources :pets
+end
+
+_____________________________________
+
+#REVISAR LOS CONTROLLERS:
+
+Para relacionar Pet con Clientes debemos agregar en 
+controllers/pets_controller.rb en los métodos new y edit:  
+
+@pets = Pet.pluck :name, :id
+
+#Y en private en el método pet_params agregar al paréntesis :client_id
+
+
+#Y Para relacionar Pet_History con Pet debemos agregar en 
+controllers/pet_histories_controller.rb en los métodos new y edit: 
+ @pets = Pet.pluck :name, :id
+
+#Y en private en el método pet_history_params agregar al paréntesis :pet_id
+
+_____________________________________
+
+#REVISAR LOS MODELS y sus relaciones:
+db/models/Pet_History.rb
+
+class PetHistory < ApplicationRecord
+  belongs_to :pet                       #un historial pertenece a una mascota
+end
+
+db/models/pet.rb
+class Pet < ApplicationRecord
+    has_many :pet_histories             #una mascota puede tener muchos historiales
+    belongs_to :client                  una mascota pertenece a un cliente
+end
+
+db/models/client.rb
+class Client < ApplicationRecord
+    has_many :pets                      #un cliente puede tener muchas mascotas
+end
+
+rails db:migrate
+rails s
+
+_____________________________________
+
+
+#En model/client.rb debemos agregar un método para ver el número de mascotas que registra un cliente:
+ 
+    def registered_pets
+        pets.count
+    end
+
+ 
+#En models/pet.rb debemos:
+
+    #Contar la cantidad de historiales de una mascota
+    def history_count
+        pet_histories.count
+    end
+    
+    #AVERAGE ES UN MÉTODO PARA SACAR PROMEDIOS
+    #Para hacer el promedio del peso
+    def avg_weight
+        pet_histories.average(:weight)
+    end
+
+    #Para el promedio del tamaño
+    def avg_height
+        pet_histories.average(:height)
+    end
+
+    #Para obtener el peso máximo del historial
+    def max_weight
+        pet_histories.pluck(:weight)
+    end
+
+    #PLUCK es para que te muestre la info en arreglos, en este caso el peso máximo
+    def pluck_weight
+        pet_histories.pluck(:weight)
+    end
+
+    #Para relacionar al dueño con la mascota
+    def owner_name
+        client&.name
+    end
+
+
+_____________________________________
+
+#REVISAR LAS VIEWS.
+Comenzamos siempre con: 
+index.html                  #Vista principal
+_pets.html.erb              #Nombre del modelo
+_form.html.erb              #Formulario
+
+
+#En app/views/clients modificamos:
+Revisamos primero index.html, luego el _client.html. y luego el _form
+Agregamos:
+
+ <p>
+    <strong>Registro de mascota</strong>
+    <%= client.registered_pets %>
+  </p>
+  
+Esto se relaciona con el modelo client.rb, para poder registrar una mascota, 
+contabilizada en la vista de los clientes registrados. 
+No modificamos nada más.
+
+______
+#En app/views/pets modificamos:
+
+
+En views/_pets.html.erb
+Agregamos al final: 
+
+<p>
+    <strong>Dueño mascota:</strong>
+    <%= pet.owner_name %>                           #Remite al método owner_name de model/pets.rb
+</p>
+
+<p>
+    <strong>Historial:</strong>
+    <%= pet.history_count %>                        #Remite al método history_count de model/pets.rb
+</p>
+
+<p>
+    <strong>Diagnóstico:</strong>
+    <%= pet.pet_histories.each do |pet_history| %>   #Remite al diagnóstico, se hace un each para que vaya aumentando el número de diagnósticos
+    <%= pet_history.diagnosis %>
+    <% end %>
+</p>
+______
+#En app/views/pet_histories modificamos:
+
+#En _pet/history.html.erb agregamos:
+
+<p>
+    <strong>Mascota:</strong>
+    <%= pet_history.pet_id %>
+</p>
+
+Para tener el nombre de la mascota a la que le pertenece el historial.
+
+
+En  _form.html.erb cambiamos el text_field por un select que nos permita tener pre-cargado el 
+nombre de la mascota ya registrada:
+
+<div>
+    <%= form.label :pet_id, style: "display: block" %>
+    <%= form.select :pet_id, options_for_select(@pets) %>
+</div>
+
+
+
+
+● Modificar el CRUD de PetHistory para que en el formulario se pueda hacer la
+asociación con el modelo Pet. (0.5 Puntos)
+
+● En el index de Pet desplegar la lista de mascotas y por cada mascota mostrar el
+historial. Desde esa página, debo ser capaz de ir a ver la información de una
+mascota(vista show). (2 Puntos)
+
+● En la vista de index de mascotas debo mostrar cuántas veces ha ido al veterinario
+esta mascota. (1 Punto)
+
+● En la vista show de una mascota se debe poder ver el historial de esa mascota,
+mostrando la altura y el peso. (1 Punto)
+tip:usar pluck
+
+● En la vista de la mascota se debe poder mostrar en una tabla los siguientes datos:
+o El peso promedio que tiene el animal. (0.5 Puntos)
+
+o La altura promedio que tiene. (0.5 Puntos)
+o Cuál ha sido la altura máxima. (0.5 Puntos)
+o Cuál ha sido el peso máximo. (0.5 Puntos)
+
+
+Parte 2:
+
+
+Extender el ejercicio anterior creando un modelo cliente(Client) que guarde la información
+del cliente y tenga asociadas sus mascotas.
+El cliente debe tener entre sus datos el nombre, teléfono y correo de contacto.
+● Crear el modelo Client. (0.5 Puntos)
+● Crear la relación entre los modelos(el modelo Client y Pet). (0.5 Puntos)
+● Crear el CRUD de Client. (1 Punto)
+● En el index de cliente mostrar la cantidad de mascotas que tiene registradas. (0.5
+Puntos)
+● En el show del cliente debe mostrarse la información de sus mascotas(nombre,
+altura máxima y peso máximo). (0.5 Puntos)
